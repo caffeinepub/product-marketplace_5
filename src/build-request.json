@@ -1,0 +1,59 @@
+{
+  "kind": "build_request",
+  "title": "Add 'shape type' as a subcategory",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-72",
+      "text": "Create a new subcategory named 'shape type' under the '3d print' parent category in the backend category hierarchy",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "Add shape type as a subcategorie"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A subcategory with name 'shape type' exists under the '3d print' parent category",
+        "The subcategory is automatically created during canister initialization/upgrade if it does not already exist",
+        "The subcategory appears in the CategorySelector dropdown under '3d print'",
+        "The subcategory appears in the CategoryFilter component hierarchy under '3d print'",
+        "Products can be assigned to the 'shape type' subcategory through the upload interfaces"
+      ]
+    },
+    {
+      "id": "REQ-73",
+      "text": "Update the migration module to ensure the 'shape type' subcategory is created under '3d print' during canister upgrades if it does not already exist",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "Add shape type as a subcategorie"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The migration.mo file includes logic to check for and create the 'shape type' subcategory under '3d print'",
+        "The migration preserves existing 'shape type' subcategory if it already exists",
+        "The migration runs automatically during canister upgrade"
+      ]
+    }
+  ],
+  "constraints": [
+    "The subcategory must be created under the '3d print' parent category specifically",
+    "Follow the existing pattern in migration.mo for creating preset categories",
+    "Maintain the single-actor architecture with all logic in backend/main.mo"
+  ],
+  "nonGoals": [
+    "Creating additional subcategories beyond 'shape type'",
+    "Modifying the frontend UI components",
+    "Changing the existing category management functionality"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

@@ -1,0 +1,667 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 33,
+  "summary": "Marketplace application for selling original products with batch image upload functionality, integrated category management within posting system, batch pricing, and integrated Stripe payment processing with shopping cart functionality",
+  "architectural_notes": [
+    "Marketplace platform with product catalog",
+    "Batch upload system with multi-image support",
+    "One-to-one relationship: each uploaded image becomes a product",
+    "Batch pricing mechanism during upload process",
+    "Stripe payment integration for card processing",
+    "Admin panel for payment method configuration",
+    "Dual checkout paths: instant Buy Now and shopping cart checkout",
+    "Admin authorization system with UI-based admin management",
+    "Category management integrated directly into posting/upload flow",
+    "Preset categories with minimum pricing constraints"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-a-category-management-system-allowing-users-to-add-edit-and-delete-product-categories-with-support-for-subcategories-nested-hierarchy",
+      "title": "Create a category management system allowing users to add, edit, and delete product categories with support for subcategories (nested hierarchy)",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-batch-image-upload-functionality-where-users-can-select-a-category-subcategory-and-upload-multiple-product-images-at-once",
+      "title": "Implement batch image upload functionality where users can select a category/subcategory and upload multiple product images at once",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-batch-pricing-functionality-allowing-users-to-set-a-single-price-that-applies-to-all-products-in-the-current-upload-batch",
+      "title": "Add batch pricing functionality allowing users to set a single price that applies to all products in the current upload batch",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-product-listing-view-displaying-all-products-organized-by-categories-and-subcategories-with-their-images-and-prices",
+      "title": "Create a product listing view displaying all products organized by categories and subcategories with their images and prices",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-design-a-cohesive-visual-theme-with-warm-earthy-tones-terracotta-sage-green-cream-and-clean-typography-that-conveys-handcrafted-authenticity-suitable-for-an-original-products-marketplace",
+      "title": "Design a cohesive visual theme with warm, earthy tones (terracotta, sage green, cream) and clean typography that conveys handcrafted authenticity suitable for an original products marketplace",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-stripe-configuration-to-admin-settings-allowing-administrators-to-securely-store-stripe-publishable-key-and-secret-key-for-payment-processing",
+      "title": "Add Stripe configuration to admin settings allowing administrators to securely store Stripe publishable key and secret key for payment processing",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-buy-now-button-to-each-product-card-in-the-productgrid-that-initiates-immediate-single-item-stripe-checkout",
+      "title": "Add a 'Buy Now' button to each product card in the ProductGrid that initiates immediate single-item Stripe checkout",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-shopping-cart-basket-functionality-allowing-users-to-add-multiple-products-before-proceeding-to-checkout",
+      "title": "Implement shopping cart/basket functionality allowing users to add multiple products before proceeding to checkout",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-checkout-page-modal-where-users-can-review-their-basket-and-complete-payment-via-stripe-for-multiple-items",
+      "title": "Create a checkout page/modal where users can review their basket and complete payment via Stripe for multiple items",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-ui-controls-in-categorymanager-component-to-create-subcategories-under-existing-parent-categories-with-a-hierarchical-selection-interface",
+      "title": "Add UI controls in CategoryManager component to create subcategories under existing parent categories with a hierarchical selection interface",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-batchuploader-component-to-support-selecting-both-parent-categories-and-subcategories-in-a-hierarchical-dropdown-or-nested-selection-interface",
+      "title": "Update BatchUploader component to support selecting both parent categories and subcategories in a hierarchical dropdown or nested selection interface",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-categoryfilter-component-to-display-categories-and-subcategories-in-a-collapsible-hierarchical-tree-structure-with-parent-child-relationships",
+      "title": "Enhance CategoryFilter component to display categories and subcategories in a collapsible hierarchical tree structure with parent/child relationships",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-productgrid-and-product-listing-views-to-display-subcategory-information-alongside-or-instead-of-parent-category-when-products-belong-to-subcategories",
+      "title": "Update ProductGrid and product listing views to display subcategory information alongside or instead of parent category when products belong to subcategories",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-settings-tab-in-the-adminpage-component-alongside-the-existing-upload-products-manage-categories-and-stripe-configuration-tabs",
+      "title": "Add a new 'Settings' tab in the AdminPage component alongside the existing 'Upload Products', 'Manage Categories', and 'Stripe Configuration' tabs",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-general-application-settings-form-allowing-administrators-to-configure-store-name-store-description-and-contact-email",
+      "title": "Create a general application settings form allowing administrators to configure store name, store description, and contact email",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-currency-selection-setting-allowing-administrators-to-choose-from-common-currencies-usd-eur-gbp-cad-aud-for-product-pricing",
+      "title": "Add currency selection setting allowing administrators to choose from common currencies (USD, EUR, GBP, CAD, AUD) for product pricing",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-tax-rate-configuration-setting-allowing-administrators-to-set-a-percentage-based-tax-rate-for-orders",
+      "title": "Add tax rate configuration setting allowing administrators to set a percentage-based tax rate for orders",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-react-query-hook-usesettings-for-fetching-and-mutating-application-settings-similar-to-the-pattern-used-in-usequeries-ts",
+      "title": "Create a React Query hook (useSettings) for fetching and mutating application settings similar to the pattern used in useQueries.ts",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-refactor-the-categorymanager-component-to-improve-the-ui-ux-for-creating-and-managing-hierarchical-categories-and-subcategories-with-better-visual-organization",
+      "title": "Refactor the CategoryManager component to improve the UI/UX for creating and managing hierarchical categories and subcategories with better visual organization",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-delete-functionality-to-the-categorymanager-component-allowing-administrators-to-remove-categories-and-subcategories",
+      "title": "Add delete functionality to the CategoryManager component allowing administrators to remove categories and subcategories",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-edit-functionality-to-the-categorymanager-component-allowing-administrators-to-rename-existing-categories-and-subcategories",
+      "title": "Add edit functionality to the CategoryManager component allowing administrators to rename existing categories and subcategories",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-category-hierarchy-management-to-support-drag-and-drop-reordering-of-categories-and-subcategories",
+      "title": "Enhance the category hierarchy management to support drag-and-drop reordering of categories and subcategories",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-admin-management-tab-in-the-adminpage-component-alongside-existing-tabs-upload-products-manage-categories-stripe-configuration-settings",
+      "title": "Add a new 'Admin Management' tab in the AdminPage component alongside existing tabs ('Upload Products', 'Manage Categories', 'Stripe Configuration', 'Settings')",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-an-adminmanager-component-that-displays-the-current-list-of-admin-principals-with-their-principal-ids",
+      "title": "Create an AdminManager component that displays the current list of admin principals with their principal IDs",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-form-controls-in-adminmanager-component-allowing-admins-to-add-new-admin-principals-by-entering-a-principal-id",
+      "title": "Add form controls in AdminManager component allowing admins to add new admin principals by entering a principal ID",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-remove-functionality-in-adminmanager-component-allowing-admins-to-revoke-admin-access-from-other-principals",
+      "title": "Add remove functionality in AdminManager component allowing admins to revoke admin access from other principals",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-custom-react-query-hooks-useadmins-useaddadmin-useremoveadmin-in-a-new-file-for-managing-admin-data-similar-to-the-pattern-used-in-usequeries-ts-and-usesettings-ts",
+      "title": "Create custom React Query hooks (useAdmins, useAddAdmin, useRemoveAdmin) in a new file for managing admin data similar to the pattern used in useQueries.ts and useSettings.ts",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-ui-component-or-section-in-the-admin-interface-that-allows-administrators-to-add-individual-products-not-batch-upload-with-the-ability-to-select-an-existing-category-subcategory-or-create-a-new-one-during-the-product-creation-process",
+      "title": "Add a new UI component or section in the admin interface that allows administrators to add individual products (not batch upload) with the ability to select an existing category/subcategory or create a new one during the product creation process",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-react-query-hook-useaddproduct-for-creating-individual-products-that-integrates-with-the-new-backend-addproduct-function",
+      "title": "Create a React Query hook useAddProduct for creating individual products that integrates with the new backend addProduct function",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-debug-and-fix-the-error-preventing-administrators-from-adding-new-categories-in-the-categorymanager-component-within-the-admin-panel",
+      "title": "Debug and fix the error preventing administrators from adding new categories in the CategoryManager component within the admin panel",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-debug-and-fix-the-error-preventing-administrators-from-adding-new-subcategories-under-existing-parent-categories-in-the-categorymanager-component",
+      "title": "Debug and fix the error preventing administrators from adding new subcategories under existing parent categories in the CategoryManager component",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-error-logging-and-user-friendly-error-messages-in-the-categorymanager-component-to-help-identify-the-root-cause-of-category-creation-failures",
+      "title": "Add error logging and user-friendly error messages in the CategoryManager component to help identify the root cause of category creation failures",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-that-the-useaddcategory-and-useupdatecategory-hooks-in-usequeries-ts-correctly-handle-the-backend-api-responses-and-error-states",
+      "title": "Verify that the useAddCategory and useUpdateCategory hooks in useQueries.ts correctly handle the backend API responses and error states",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-debug-and-resolve-the-error-that-occurs-when-opening-the-categories-page-in-the-admin-panel-ensuring-the-page-loads-without-errors",
+      "title": "Debug and resolve the error that occurs when opening the categories page in the admin panel, ensuring the page loads without errors",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-categorymanager-component-error-handling-to-display-specific-user-friendly-error-messages-when-category-or-subcategory-creation-fails-replacing-generic-error-notifications",
+      "title": "Enhance the CategoryManager component error handling to display specific, user-friendly error messages when category or subcategory creation fails, replacing generic error notifications",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-that-the-useaddcategory-and-useupdatecategory-react-query-hooks-correctly-handle-backend-responses-error-states-and-cache-invalidation-to-ensure-the-ui-updates-immediately-after-successful-operations",
+      "title": "Verify that the useAddCategory and useUpdateCategory React Query hooks correctly handle backend responses, error states, and cache invalidation to ensure the UI updates immediately after successful operations",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-categoryfilter-component-on-the-marketplace-page-correctly-filters-products-by-both-parent-categories-and-subcategories-displaying-only-products-that-match-the-selected-category-hierarchy",
+      "title": "Ensure the CategoryFilter component on the marketplace page correctly filters products by both parent categories and subcategories, displaying only products that match the selected category hierarchy",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-comprehensive-console-logging-in-the-categorymanager-component-and-usequeries-hooks-to-log-all-category-operations-add-edit-delete-with-request-payloads-response-data-and-error-details-for-debugging",
+      "title": "Add comprehensive console logging in the CategoryManager component and useQueries hooks to log all category operations (add, edit, delete) with request payloads, response data, and error details for debugging",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-manage-categories-tab-from-the-adminpage-component-eliminating-the-standalone-categorymanager-component-from-the-admin-interface",
+      "title": "Remove the 'Manage Categories' tab from the AdminPage component, eliminating the standalone CategoryManager component from the admin interface",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-category-management-functionality-directly-into-the-singleproductuploader-component-allowing-users-to-add-edit-and-delete-categories-inline-during-the-single-product-upload-workflow",
+      "title": "Integrate category management functionality directly into the SingleProductUploader component, allowing users to add, edit, and delete categories inline during the single product upload workflow",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-categoryselector-component-to-support-inline-category-management-operations-add-edit-delete-directly-within-the-dropdown-interface",
+      "title": "Enhance the CategorySelector component to support inline category management operations (add, edit, delete) directly within the dropdown interface",
+      "reqIds": [
+        "REQ-52"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-debug-and-fix-the-error-that-occurs-when-administrators-attempt-to-add-a-new-category-through-the-categoryselector-component-in-the-singleproductuploader-workflow",
+      "title": "Debug and fix the error that occurs when administrators attempt to add a new category through the CategorySelector component in the SingleProductUploader workflow",
+      "reqIds": [
+        "REQ-53"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-comprehensive-error-logging-in-the-categoryselector-component-to-capture-the-full-error-details-including-error-message-stack-trace-request-payload-and-response-data-when-category-creation-fails",
+      "title": "Add comprehensive error logging in the CategorySelector component to capture the full error details including error message, stack trace, request payload, and response data when category creation fails",
+      "reqIds": [
+        "REQ-54"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-that-the-useaddcategory-hook-in-usequeries-ts-correctly-handles-the-backend-addcategory-api-response-properly-invalidates-the-react-query-cache-and-triggers-ui-updates-after-successful-category-creation",
+      "title": "Verify that the useAddCategory hook in useQueries.ts correctly handles the backend addCategory API response, properly invalidates the React Query cache, and triggers UI updates after successful category creation",
+      "reqIds": [
+        "REQ-55"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-minimum-price-requirements-in-the-frontend-when-users-select-a-category-during-product-upload-single-or-batch",
+      "title": "Display minimum price requirements in the frontend when users select a category during product upload (single or batch)",
+      "reqIds": [
+        "REQ-59"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-auto-generated-product-descriptions-in-the-productcard-and-product-detail-views",
+      "title": "Display auto-generated product descriptions in the ProductCard and product detail views",
+      "reqIds": [
+        "REQ-61"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-debug-and-fix-the-error-in-the-categoryselector-component-that-prevents-administrators-from-successfully-adding-new-categories-during-the-product-upload-workflow",
+      "title": "Debug and fix the error in the CategorySelector component that prevents administrators from successfully adding new categories during the product upload workflow",
+      "reqIds": [
+        "REQ-62"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-the-useaddcategory-hook-correctly-handles-the-backend-addcategory-api-response-including-proper-error-handling-cache-invalidation-and-ui-state-updates",
+      "title": "Verify the useAddCategory hook correctly handles the backend addCategory API response, including proper error handling, cache invalidation, and UI state updates",
+      "reqIds": [
+        "REQ-63"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-comprehensive-error-logging-in-the-category-creation-flow-to-capture-request-payload-backend-response-error-stack-traces-and-mutation-state-transitions",
+      "title": "Add comprehensive error logging in the category creation flow to capture request payload, backend response, error stack traces, and mutation state transitions",
+      "reqIds": [
+        "REQ-64"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-user-friendly-error-messages-in-the-categoryselector-component-when-category-creation-fails-replacing-generic-error-notifications-with-specific-actionable-feedback",
+      "title": "Display user-friendly error messages in the CategorySelector component when category creation fails, replacing generic error notifications with specific actionable feedback",
+      "reqIds": [
+        "REQ-66"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-select-item-component-in-categoryselector-to-ensure-all-select-item-elements-have-non-empty-value-props-resolving-the-validation-error-a-select-item-must-have-a-value-prop-that-is-not-an-empty-string",
+      "title": "Fix the Select.Item component in CategorySelector to ensure all Select.Item elements have non-empty value props, resolving the validation error 'A <Select.Item /> must have a value prop that is not an empty string'",
+      "reqIds": [
+        "REQ-67"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-that-the-categoryselector-dropdown-correctly-displays-all-categories-and-subcategories-with-proper-value-assignments-after-fixing-the-empty-value-issue",
+      "title": "Verify that the CategorySelector dropdown correctly displays all categories and subcategories with proper value assignments after fixing the empty value issue",
+      "reqIds": [
+        "REQ-68"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-2",
+      "summary": "Implement batch image upload functionality organized by categories",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Auto-create products from uploaded images (one product per image)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add batch pricing feature to set price for all products during upload",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Automatically create one product per uploaded image, where each image becomes a distinct product in the marketplace",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Integrate Stripe payment processing with admin configuration settings",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Add 'Buy Now' button on each product for immediate single-item purchase",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Implement shopping basket functionality for multi-item checkout",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Add backend functions to create Stripe checkout sessions using stored API keys, supporting both single-item and multi-item purchases",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Expand admin settings with additional configuration options",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Add backend data model and functions to store and retrieve general application settings (store name, store description, contact email)",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Add admin management feature allowing existing admins to authorize new admins through the UI",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Add backend function getAdmins() that returns the list of current admin principals",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Add backend function addAdmin(principal: Principal) that adds a new principal to the admins list",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Add backend function removeAdmin(principal: Principal) that removes a principal from the admins list",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Add ability to select or create categories when adding individual items/products",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Add backend function addProduct(name: Text, price: Nat, imageUrl: Text, categoryId: Text) that creates a single product with specified details and associates it with an existing category",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Verify that the backend addCategory and updateCategory functions in main.mo correctly handle category and subcategory creation with proper validation and authorization checks",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Verify and fix the backend addCategory function to ensure it properly handles category creation with validation, authorization checks, and error responses",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Verify and fix the backend updateCategory function to ensure subcategories can be created under parent categories with proper parent-child relationship validation",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Remove standalone category management page and integrate category management into the posting/upload system",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Integrate category management functionality directly into the BatchUploader component, allowing users to add, edit, and delete categories inline during the batch upload workflow",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-45",
+      "summary": "Verify that the backend addCategory function in main.mo correctly validates input parameters, performs authorization checks, creates the category with proper structure, and returns appropriate success or error responses",
+      "reqIds": [
+        "REQ-56"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-47",
+      "summary": "Implement auto-generation of product descriptions",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-51",
+      "summary": "Implement automatic product description generation in the backend based on product name and category",
+      "reqIds": [
+        "REQ-60"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-55",
+      "summary": "Verify the backend addCategory function correctly validates input parameters, performs authorization checks, creates categories with proper structure, and returns appropriate success or error responses",
+      "reqIds": [
+        "REQ-65"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-56",
+      "summary": "Create a preset category named '3d print' during application initialization if it does not already exist",
+      "reqIds": [
+        "REQ-69"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-57",
+      "summary": "Create a preset category named 'ceramic' during application initialization if it does not already exist",
+      "reqIds": [
+        "REQ-70"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-58",
+      "summary": "Ensure preset categories ('3d print' and 'ceramic') appear in the CategorySelector dropdown and CategoryFilter components immediately after system initialization",
+      "reqIds": [
+        "REQ-71"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-59",
+      "summary": "Create a subcategory named 'shape type' under an appropriate parent category",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-60",
+      "summary": "Create a new subcategory named 'shape type' under the '3d print' parent category in the backend category hierarchy",
+      "reqIds": [
+        "REQ-72"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-61",
+      "summary": "Update the migration module to ensure the 'shape type' subcategory is created under '3d print' during canister upgrades if it does not already exist",
+      "reqIds": [
+        "REQ-73"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Product Marketplace",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

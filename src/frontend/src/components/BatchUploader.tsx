@@ -92,6 +92,9 @@ export default function BatchUploader() {
   };
 
   const handleBatchUpload = async () => {
+    const timestamp = new Date().toISOString();
+    console.log('[BatchUploader] 🚀 Starting batch upload at', timestamp);
+    
     if (!selectedCategory) {
       toast.error('Please select a category');
       return;
@@ -129,10 +132,18 @@ export default function BatchUploader() {
         categoryPath = selectedCategory;
       }
 
+      console.log('[BatchUploader] 📦 Batch details:', {
+        timestamp: new Date().toISOString(),
+        category: categoryPath,
+        productCount: products.length,
+        products: products.map(p => ({ name: p.name, price: p.price })),
+      });
+
       await startBatchMutation.mutateAsync(categoryPath);
 
       for (let i = 0; i < products.length; i++) {
         const product = products[i];
+        console.log(`[BatchUploader] 📤 Uploading product ${i + 1}/${products.length}:`, product.name);
         updateProduct(i, { status: 'uploading' });
 
         try {
@@ -142,7 +153,7 @@ export default function BatchUploader() {
           
           // Create ExternalBlob with progress tracking
           const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress((percentage) => {
-            console.log(`Product ${i + 1}/${products.length} upload progress: ${percentage}%`);
+            console.log(`[BatchUploader] Product ${i + 1}/${products.length} upload progress: ${percentage}%`);
           });
 
           await uploadProductMutation.mutateAsync({
@@ -152,18 +163,32 @@ export default function BatchUploader() {
             category: categoryPath,
           });
 
+          console.log(`[BatchUploader] ✅ Product ${i + 1}/${products.length} uploaded successfully:`, product.name);
           updateProduct(i, { status: 'success' });
           setUploadProgress(((i + 1) / products.length) * 100);
         } catch (error: any) {
-          console.error(`Error uploading product ${product.name}:`, error);
+          console.error(`[BatchUploader] ❌ Error uploading product ${product.name}:`, {
+            error,
+            errorMessage: error?.message,
+          });
           updateProduct(i, { status: 'error', error: error.message || 'Upload failed' });
         }
       }
 
+      console.log('[BatchUploader] 🏁 Finishing batch upload at', new Date().toISOString());
       await finishBatchMutation.mutateAsync();
       
       const successCount = products.filter((p) => p.status === 'success').length;
       const errorCount = products.filter((p) => p.status === 'error').length;
+      
+      console.log('[BatchUploader] 📊 Batch upload complete:', {
+        timestamp: new Date().toISOString(),
+        successCount,
+        errorCount,
+        totalProducts: products.length,
+      });
+      
+      console.log('[BatchUploader] 🔄 Cache invalidated, waiting for refetch...');
       
       if (errorCount > 0) {
         toast.warning(`Uploaded ${successCount} products. ${errorCount} failed.`);
@@ -177,7 +202,12 @@ export default function BatchUploader() {
         setSelectedCategory('');
       }
     } catch (error: any) {
-      console.error('Batch upload error:', error);
+      console.error('[BatchUploader] ❌ Batch upload error:', {
+        timestamp: new Date().toISOString(),
+        error,
+        errorMessage: error?.message,
+        errorStack: error?.stack,
+      });
       toast.error(error.message || 'Failed to upload products');
     } finally {
       setIsUploading(false);
@@ -299,18 +329,18 @@ export default function BatchUploader() {
                   variant="outline"
                   size="sm"
                   onClick={() => setProducts([])}
-                  className="text-destructive hover:text-destructive"
+                  className="border-sage/30"
                 >
                   Clear All
                 </Button>
               )}
             </div>
 
-            <div className="max-h-96 space-y-3 overflow-y-auto rounded-lg border border-sage/20 p-4">
+            <div className="space-y-3">
               {products.map((product, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-3 rounded-lg border border-sage/10 bg-cream/20 p-3"
+                  className="flex items-start gap-3 rounded-lg border border-sage/20 bg-cream/20 p-3"
                 >
                   <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded border border-sage/20 bg-white">
                     {product.image ? (
@@ -320,92 +350,106 @@ export default function BatchUploader() {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                      <ImageIcon className="h-6 w-6 text-muted-foreground" />
                     )}
                   </div>
 
                   <div className="flex-1 space-y-2">
-                    <Input
-                      placeholder="Product name"
-                      value={product.name}
-                      onChange={(e) => updateProduct(index, { name: e.target.value })}
-                      disabled={isUploading}
-                      className="border-sage/30 focus-visible:ring-sage"
-                    />
-                    <div className="space-y-1">
-                      <Input
-                        type="number"
-                        placeholder="Price ($)"
-                        value={product.price || ''}
-                        onChange={(e) => updateProduct(index, { price: parseFloat(e.target.value) || 0 })}
-                        disabled={isUploading}
-                        className={`border-sage/30 focus-visible:ring-sage ${product.priceError ? 'border-destructive' : ''}`}
-                        step="0.01"
-                        min="0"
-                      />
-                      {product.priceError && (
-                        <div className="flex items-center gap-1 text-xs text-destructive">
-                          <AlertCircle className="h-3 w-3" />
-                          <span>{product.priceError}</span>
-                        </div>
-                      )}
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <div>
+                        <Label htmlFor={`name-${index}`} className="text-xs">
+                          Product Name
+                        </Label>
+                        <Input
+                          id={`name-${index}`}
+                          value={product.name}
+                          onChange={(e) => updateProduct(index, { name: e.target.value })}
+                          disabled={isUploading}
+                          className="h-8 border-sage/30 text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor={`price-${index}`} className="text-xs">
+                          Price ($)
+                        </Label>
+                        <Input
+                          id={`price-${index}`}
+                          type="number"
+                          value={product.price || ''}
+                          onChange={(e) => updateProduct(index, { price: parseFloat(e.target.value) || 0 })}
+                          disabled={isUploading}
+                          className={`h-8 border-sage/30 text-sm ${product.priceError ? 'border-destructive' : ''}`}
+                          step="0.01"
+                          min="0"
+                        />
+                        {product.priceError && (
+                          <p className="mt-1 text-xs text-destructive">{product.priceError}</p>
+                        )}
+                      </div>
                     </div>
+
+                    {product.status === 'error' && product.error && (
+                      <div className="flex items-center gap-1 text-xs text-destructive">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>{product.error}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col items-center gap-2">
+                    {product.status === 'pending' && !isUploading && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeProduct(index)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {product.status === 'uploading' && (
+                      <Loader2 className="h-5 w-5 animate-spin text-sage" />
+                    )}
                     {product.status === 'success' && (
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                     )}
                     {product.status === 'error' && (
                       <XCircle className="h-5 w-5 text-destructive" />
                     )}
-                    {product.status === 'uploading' && (
-                      <Loader2 className="h-5 w-5 animate-spin text-sage" />
-                    )}
-                    {!isUploading && product.status === 'pending' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeProduct(index)}
-                        className="h-8 px-2 text-destructive hover:text-destructive"
-                      >
-                        Remove
-                      </Button>
-                    )}
                   </div>
                 </div>
               ))}
             </div>
-
-            {isUploading && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Uploading batch...</span>
-                  <span className="font-medium text-sage">{Math.round(uploadProgress)}%</span>
-                </div>
-                <Progress value={uploadProgress} className="h-2" />
-              </div>
-            )}
-
-            <Button
-              onClick={handleBatchUpload}
-              disabled={isUploading || products.length === 0 || !selectedCategory}
-              className="w-full bg-terracotta hover:bg-terracotta/90"
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Uploading {products.filter((p) => p.status === 'success').length} of {products.length}...
-                </>
-              ) : (
-                <>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Upload {products.length} Product{products.length !== 1 ? 's' : ''}
-                </>
-              )}
-            </Button>
           </div>
         )}
+
+        {isUploading && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Uploading products...</span>
+              <span className="font-medium text-sage">{Math.round(uploadProgress)}%</span>
+            </div>
+            <Progress value={uploadProgress} className="h-2" />
+          </div>
+        )}
+
+        <Button
+          onClick={handleBatchUpload}
+          disabled={isUploading || products.length === 0 || !selectedCategory}
+          className="w-full bg-terracotta hover:bg-terracotta/90"
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading {products.filter((p) => p.status === 'success').length} / {products.length}
+            </>
+          ) : (
+            <>
+              <Upload className="mr-2 h-4 w-4" />
+              Upload {products.length} Product{products.length !== 1 ? 's' : ''}
+            </>
+          )}
+        </Button>
       </CardContent>
     </Card>
   );

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import type { Product, Category } from '../backend';
 import { ExternalBlob } from '../backend';
+import { useEffect } from 'react';
 
 export function useCategories() {
   const { actor, isFetching } = useActor();
@@ -274,14 +275,59 @@ export function useReorderCategories() {
 export function useProducts() {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Product[]>({
+  const query = useQuery<Product[]>({
     queryKey: ['products'],
     queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllProducts();
+      const timestamp = new Date().toISOString();
+      console.log(`[useProducts] 🔍 Query triggered at ${timestamp}`);
+      
+      if (!actor) {
+        console.log('[useProducts] ⚠️ Actor not available, returning empty array');
+        return [];
+      }
+      
+      try {
+        console.log('[useProducts] 🚀 Calling actor.getAllProducts()...');
+        const result = await actor.getAllProducts();
+        
+        console.log('[useProducts] ✅ Raw response received:', {
+          timestamp: new Date().toISOString(),
+          productCount: result.length,
+          productIds: result.map(p => p.id),
+          products: result.map(p => ({
+            id: p.id,
+            name: p.name,
+            categoryId: p.categoryId,
+            price: p.price.toString(),
+          })),
+        });
+        
+        return result || [];
+      } catch (error: any) {
+        console.error('[useProducts] ❌ Error fetching products:', {
+          timestamp: new Date().toISOString(),
+          error,
+          errorMessage: error?.message,
+          errorStack: error?.stack,
+        });
+        throw error;
+      }
     },
     enabled: !!actor && !isFetching,
   });
+
+  // Log when data changes
+  useEffect(() => {
+    if (query.data) {
+      console.log('[useProducts] 📊 Data updated:', {
+        timestamp: new Date().toISOString(),
+        productCount: query.data.length,
+        productIds: query.data.map(p => p.id),
+      });
+    }
+  }, [query.data]);
+
+  return query;
 }
 
 export function useProduct(productId: string) {
@@ -313,11 +359,52 @@ export function useAddProduct() {
       image: ExternalBlob;
       categoryId: string;
     }) => {
-      if (!actor) throw new Error('Actor not initialized');
-      await actor.addProduct(name, price, image, categoryId);
+      const timestamp = new Date().toISOString();
+      console.log('[useAddProduct] 🚀 Starting product upload:', {
+        timestamp,
+        name,
+        price: price.toString(),
+        categoryId,
+      });
+      
+      if (!actor) {
+        console.error('[useAddProduct] ❌ Actor not initialized');
+        throw new Error('Actor not initialized');
+      }
+      
+      try {
+        await actor.addProduct(name, price, image, categoryId);
+        console.log('[useAddProduct] ✅ Product uploaded successfully:', {
+          timestamp: new Date().toISOString(),
+          name,
+          categoryId,
+        });
+      } catch (error: any) {
+        console.error('[useAddProduct] ❌ Error uploading product:', {
+          timestamp: new Date().toISOString(),
+          name,
+          categoryId,
+          error,
+          errorMessage: error?.message,
+        });
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      const timestamp = new Date().toISOString();
+      console.log('[useAddProduct] 🔄 Invalidating products query cache at', timestamp);
+      console.log('[useAddProduct] 📦 Product details:', {
+        name: variables.name,
+        categoryId: variables.categoryId,
+        price: variables.price.toString(),
+      });
+      
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      
+      // Add small delay to allow refetch to complete
+      setTimeout(() => {
+        console.log('[useAddProduct] ⏱️ Cache invalidation complete, refetch should have triggered');
+      }, 100);
     },
   });
 }
@@ -327,8 +414,10 @@ export function useStartBatchUpload() {
 
   return useMutation({
     mutationFn: async (category: string) => {
+      console.log('[useStartBatchUpload] 🚀 Starting batch upload for category:', category);
       if (!actor) throw new Error('Actor not initialized');
       await actor.startBatchUpload(category);
+      console.log('[useStartBatchUpload] ✅ Batch upload started successfully');
     },
   });
 }
@@ -348,8 +437,16 @@ export function useUploadProductImage() {
       price: bigint;
       category: string;
     }) => {
+      console.log('[useUploadProductImage] 📤 Uploading product image:', {
+        name,
+        price: price.toString(),
+        category,
+      });
+      
       if (!actor) throw new Error('Actor not initialized');
       await actor.uploadProductImage(name, image, price, category);
+      
+      console.log('[useUploadProductImage] ✅ Product image uploaded:', name);
     },
   });
 }
@@ -360,12 +457,23 @@ export function useFinishBatchUpload() {
 
   return useMutation({
     mutationFn: async () => {
+      const timestamp = new Date().toISOString();
+      console.log('[useFinishBatchUpload] 🏁 Finishing batch upload at', timestamp);
+      
       if (!actor) throw new Error('Actor not initialized');
       await actor.finishBatchUpload();
+      
+      console.log('[useFinishBatchUpload] ✅ Batch upload completed at', new Date().toISOString());
     },
     onSuccess: () => {
+      const timestamp = new Date().toISOString();
+      console.log('[useFinishBatchUpload] 🔄 Batch complete at', timestamp);
+      console.log('[useFinishBatchUpload] 🔄 Invalidating products and categories cache');
+      
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      
+      console.log('[useFinishBatchUpload] ⏱️ Cache invalidated at', new Date().toISOString());
     },
   });
 }

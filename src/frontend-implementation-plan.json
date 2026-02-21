@@ -1,100 +1,88 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Image Upload and Add Image Editing Capability",
+  "title": "Fix product visibility in marketplace after upload",
   "requirements": [
     {
-      "id": "REQ-74",
-      "summary": "Fix BatchUploader image upload to backend blob storage with progress tracking and error handling",
+      "id": "REQ-82",
+      "summary": "Verify the useProducts React Query hook correctly fetches and caches all products without client-side filtering",
       "acceptanceCriteria": [
-        "Users can select multiple image files in the BatchUploader component",
-        "Selected images are successfully uploaded to the backend blob storage",
-        "Upload progress is displayed to the user during the upload process",
-        "Products are created with correct image references after successful upload",
-        "Error messages are displayed if upload fails with actionable feedback"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/BatchUploader.tsx",
-          "operation": "modify",
-          "description": "Fix image upload implementation to properly use the blob-storage component's ExternalBlob class. Convert selected File objects to ExternalBlob using ExternalBlob.fromBytes() after reading file data as Uint8Array. Implement withUploadProgress() to track upload percentage for each image. Ensure the image ExternalBlob is passed correctly to the uploadProductImage backend function. Add error handling with actionable error messages for upload failures (file size, format validation, network errors). Verify the component's usage instructions for blob-storage before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-75",
-      "summary": "Fix SingleProductUploader image upload to backend blob storage with progress tracking and error handling",
-      "acceptanceCriteria": [
-        "Users can select a single image file in the SingleProductUploader component",
-        "Selected image is successfully uploaded to the backend blob storage",
-        "Upload progress is displayed to the user during the upload process",
-        "Product is created with correct image reference after successful upload",
-        "Error messages are displayed if upload fails with actionable feedback"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/SingleProductUploader.tsx",
-          "operation": "modify",
-          "description": "Fix image upload implementation to properly use the blob-storage component's ExternalBlob class. Convert the selected File object to ExternalBlob using ExternalBlob.fromBytes() after reading file data as Uint8Array. Implement withUploadProgress() to track and display upload percentage. Ensure the image ExternalBlob is passed correctly to the addProduct backend function. Add comprehensive error handling with actionable error messages for upload failures (file size limits, unsupported formats, network issues). Verify the component's usage instructions for blob-storage before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-77",
-      "summary": "Add image editing capability to replace product images in SingleProductUploader and product management interfaces",
-      "acceptanceCriteria": [
-        "Administrators can select a new image file to replace an existing product image",
-        "The new image is uploaded to backend blob storage",
-        "The product record is updated with the new image reference",
-        "Old image blob is properly handled (replaced or removed)",
-        "Image update operation provides user feedback on success or failure"
+        "useProducts hook successfully fetches complete product list",
+        "No client-side filtering removes products from the displayed list",
+        "Query cache properly invalidates after product creation"
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a new custom hook useUpdateProductImage that wraps the backend updateProductImage function. Use useMutation from React Query with proper error handling. The mutation function should accept productId and newImage (as ExternalBlob), convert the File to ExternalBlob using ExternalBlob.fromBytes() and withUploadProgress() for progress tracking, then call actor.updateProductImage(productId, newImage). On success, invalidate the 'products' query key to refresh the product grid. Return loading, error, and success states. Follow the existing pattern in useQueries.ts for consistency. Verify the component's usage instructions for blob-storage before implementing."
+          "description": "Add comprehensive logging to the useProducts hook to track: 1) when the query is triggered, 2) the raw response from actor.getAllProducts(), 3) the number of products returned, 4) product IDs in the response. Verify that no filtering logic exists in the queryFn that would exclude products. Ensure the query is enabled when actor is available and not fetching."
+        }
+      ]
+    },
+    {
+      "id": "REQ-83",
+      "summary": "Ensure ProductGrid component renders all products without applying hidden filters that exclude certain products",
+      "acceptanceCriteria": [
+        "ProductGrid displays every product in the products array",
+        "No conditional rendering logic hides products unexpectedly",
+        "Empty states display correctly when no products exist"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ProductGrid.tsx",
+          "operation": "modify",
+          "description": "Add logging to track: 1) the full products array passed to ProductGrid, 2) the filtered products array after category filtering, 3) any products that are excluded by filtering logic. Review the category filtering logic to ensure it doesn't inadvertently hide products with valid category IDs. Verify that products with no matching category are handled appropriately (either shown in an 'Uncategorized' section or explicitly filtered with logging)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-84",
+      "summary": "Verify that SingleProductUploader and BatchUploader properly invalidate products cache after successful upload",
+      "acceptanceCriteria": [
+        "Products query cache is invalidated after successful single product upload",
+        "Products query cache is invalidated after successful batch upload",
+        "Marketplace page automatically refetches and displays new products"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/SingleProductUploader.tsx",
+          "operation": "modify",
+          "description": "Add logging immediately after successful product upload and after cache invalidation. Log: 1) 'Product uploaded successfully', 2) the product details, 3) 'Invalidating products query cache'. Verify that queryClient.invalidateQueries({ queryKey: ['products'] }) is called after the upload mutation succeeds. Add a small delay (100ms) after invalidation to allow the refetch to complete before showing success message."
+        },
+        {
+          "path": "frontend/src/components/BatchUploader.tsx",
+          "operation": "modify",
+          "description": "Add logging after successful batch upload completion and after cache invalidation. Log: 1) 'Batch upload completed', 2) the number of products uploaded, 3) 'Invalidating products query cache'. Verify that queryClient.invalidateQueries({ queryKey: ['products'] }) is called after finishBatchUpload succeeds. Ensure the invalidation happens after the final backend call that completes the batch."
+        }
+      ]
+    },
+    {
+      "id": "REQ-85",
+      "summary": "Add comprehensive logging in the product retrieval flow to track when products appear in frontend queries",
+      "acceptanceCriteria": [
+        "Frontend logs product fetch responses with count and IDs",
+        "Cache invalidation events are logged with timestamps"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Enhance the useProducts hook with detailed logging: 1) Log when the query starts fetching with timestamp, 2) Log the raw response from getAllProducts() including product count and all product IDs, 3) Log any errors with full error details, 4) Add logging to the onSuccess callback if present. Use console.log with '[useProducts]' prefix for easy filtering in browser console."
         },
         {
           "path": "frontend/src/components/SingleProductUploader.tsx",
           "operation": "modify",
-          "description": "Add edit mode support to the SingleProductUploader component. Accept optional productId and existingProduct props to enable editing existing products. When in edit mode, pre-populate form fields with existing product data and display the current product image. Add 'Replace Image' file input that allows selecting a new image. Use the useUpdateProductImage hook to handle image replacement. Display upload progress during image update. Show success toast notification after successful update. Add error handling with clear messages if update fails. Ensure the component can be toggled between create and edit modes seamlessly."
-        }
-      ]
-    },
-    {
-      "id": "REQ-78",
-      "summary": "Add UI controls in ProductCard for administrators to initiate image editing",
-      "acceptanceCriteria": [
-        "Edit button or icon is displayed on product cards for administrators",
-        "Clicking edit opens an interface for selecting a new product image",
-        "File input allows selecting image files from the user's device",
-        "Upload progress is displayed during the image replacement operation",
-        "Success confirmation is shown after successful image update"
-      ],
-      "file_operations": [
+          "description": "Add timestamp logging for cache invalidation events. Log: 1) timestamp when invalidation is triggered, 2) 'Cache invalidated at [timestamp]', 3) 'Waiting for refetch...'. This helps track the timing between upload completion and UI refresh."
+        },
         {
-          "path": "frontend/src/components/ProductCard.tsx",
+          "path": "frontend/src/components/BatchUploader.tsx",
           "operation": "modify",
-          "description": "Add admin-only edit button/icon to the product card using the authorization component's useActor hook to check if the current user is an admin (via isCallerAdmin or by checking identity/role). The edit button should open a dialog or modal containing a file input for selecting a new product image. Integrate the useUpdateProductImage hook from useQueries.ts to handle the image replacement. Display upload progress using a progress bar or percentage indicator during the upload. Show success toast notification after successful image update. Include error handling with user-friendly error messages. Ensure the edit controls are only visible to authenticated administrators."
-        }
-      ]
-    },
-    {
-      "id": "REQ-80",
-      "summary": "Create useUpdateProductImage hook with proper cache invalidation for immediate UI updates",
-      "acceptanceCriteria": [
-        "Hook wraps the backend updateProductImage function",
-        "Hook invalidates products query cache after successful update",
-        "Hook provides loading, error, and success states",
-        "Hook integrates seamlessly with existing React Query patterns in useQueries.ts",
-        "UI components can use the hook to trigger image updates"
-      ],
-      "file_operations": [
+          "description": "Add timestamp logging for batch upload completion and cache invalidation. Log: 1) timestamp when batch finishes, 2) 'Batch complete at [timestamp]', 3) 'Cache invalidated at [timestamp]'. Include the total elapsed time for the batch operation."
+        },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/components/ProductGrid.tsx",
           "operation": "modify",
-          "description": "Create a new exported function useUpdateProductImage that returns a React Query useMutation hook. The mutation function should accept an object with productId (string) and newImage (File). Convert the File to ExternalBlob using ExternalBlob.fromBytes() after reading as Uint8Array, and chain withUploadProgress() for progress tracking. Call actor.updateProductImage(productId, imageBlob) and handle the response. In the onSuccess callback, use queryClient.invalidateQueries with queryKey ['products'] to refresh the product grid immediately. Also invalidate ['product', productId] if individual product queries exist. Export proper TypeScript types for the mutation variables and return type. Follow the existing logging and error handling patterns in useQueries.ts. Verify the component's usage instructions for blob-storage before implementing."
+          "description": "Add logging at the component level to track re-renders and product updates. Log: 1) 'ProductGrid rendering with X products' on each render, 2) 'Products changed' when the products array reference changes, 3) 'Filtered to Y products' after category filtering. Use React.useEffect to detect changes in the products array."
         }
       ]
     }

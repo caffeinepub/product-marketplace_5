@@ -12,6 +12,7 @@ import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import Nat "mo:core/Nat";
 import Migration "migration";
+import Debug "mo:core/Debug";
 
 (with migration = Migration.run)
 actor {
@@ -408,7 +409,10 @@ actor {
 
   // Product browsing
   public query func getAllProducts() : async [Product] {
-    products.values().toArray();
+    Debug.print("Returning all products from backend");
+    let allProducts = products.values().toArray();
+    Debug.print("Number of products returned: " # allProducts.size().toText());
+    allProducts;
   };
 
   public query func getProduct(productId : Text) : async ?Product {

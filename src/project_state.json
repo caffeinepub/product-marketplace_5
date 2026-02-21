@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 35,
+  "projectStateVersion": 37,
   "summary": "Marketplace application for selling original products with batch image upload functionality, integrated category management within posting system, batch pricing, and integrated Stripe payment processing with shopping cart functionality",
   "architectural_notes": [
     "Marketplace platform with product catalog",
@@ -15,7 +15,8 @@
     "Preset categories with minimum pricing constraints"
   ],
   "known_issues": [
-    "Image upload not functional - images cannot be uploaded when creating products"
+    "Image upload not functional - images cannot be uploaded when creating products",
+    "Uploaded products not appearing in store/marketplace view"
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -474,6 +475,38 @@
         "REQ-80"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-verify-the-useproducts-react-query-hook-in-usequeries-ts-correctly-fetches-and-caches-all-products-from-the-backend-without-client-side-filtering",
+      "title": "Verify the useProducts React Query hook in useQueries.ts correctly fetches and caches all products from the backend without client-side filtering",
+      "reqIds": [
+        "REQ-82"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-productgrid-component-renders-all-products-returned-from-useproducts-without-applying-hidden-filters-or-conditions-that-would-exclude-certain-products",
+      "title": "Ensure ProductGrid component renders all products returned from useProducts without applying hidden filters or conditions that would exclude certain products",
+      "reqIds": [
+        "REQ-83"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-verify-that-both-singleproductuploader-and-batchuploader-components-properly-invalidate-the-products-cache-after-successful-upload-to-trigger-immediate-ui-refresh",
+      "title": "Verify that both SingleProductUploader and BatchUploader components properly invalidate the products cache after successful upload to trigger immediate UI refresh",
+      "reqIds": [
+        "REQ-84"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-comprehensive-logging-in-the-product-creation-and-retrieval-flow-to-track-when-products-are-created-in-the-backend-and-when-they-appear-in-the-frontend-queries",
+      "title": "Add comprehensive logging in the product creation and retrieval flow to track when products are created in the backend and when they appear in the frontend queries",
+      "reqIds": [
+        "REQ-85"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -726,6 +759,20 @@
       "summary": "Create backend function updateProductImage that accepts a product ID and new image blob, replaces the existing image reference, and returns the updated product data",
       "reqIds": [
         "REQ-79"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-70",
+      "summary": "Ensure all uploaded products appear in the store/marketplace view immediately after upload",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-71",
+      "summary": "Debug and fix the backend getAllProducts function to ensure it returns all uploaded products without filtering or omitting any entries",
+      "reqIds": [
+        "REQ-81"
       ],
       "status": "pending"
     }

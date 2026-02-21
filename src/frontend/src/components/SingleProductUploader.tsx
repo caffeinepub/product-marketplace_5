@@ -75,6 +75,9 @@ export default function SingleProductUploader() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const timestamp = new Date().toISOString();
+    console.log('[SingleProductUploader] 📝 Form submission started at', timestamp);
+
     if (!productName.trim()) {
       toast.error('Please enter a product name');
       return;
@@ -104,6 +107,14 @@ export default function SingleProductUploader() {
     try {
       setUploadProgress(0);
 
+      console.log('[SingleProductUploader] 🚀 Starting product upload:', {
+        timestamp: new Date().toISOString(),
+        name: productName,
+        price: productPrice,
+        category: selectedCategory,
+        imageSize: selectedImage.size,
+      });
+
       // Convert File to Uint8Array
       const arrayBuffer = await selectedImage.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
@@ -122,6 +133,14 @@ export default function SingleProductUploader() {
         categoryId: selectedCategory,
       });
 
+      console.log('[SingleProductUploader] ✅ Product uploaded successfully at', new Date().toISOString());
+      console.log('[SingleProductUploader] 🔄 Invalidating products query cache');
+      
+      // Wait for cache invalidation
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('[SingleProductUploader] ⏱️ Waiting for refetch...');
+
       toast.success('Product added successfully');
 
       // Reset form
@@ -131,7 +150,12 @@ export default function SingleProductUploader() {
       clearImage();
       setUploadProgress(0);
     } catch (error: any) {
-      console.error('Error adding product:', error);
+      console.error('[SingleProductUploader] ❌ Error adding product:', {
+        timestamp: new Date().toISOString(),
+        error,
+        errorMessage: error?.message,
+        errorStack: error?.stack,
+      });
       toast.error(error.message || 'Failed to add product');
     }
   };

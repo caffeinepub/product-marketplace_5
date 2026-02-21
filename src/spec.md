@@ -1,15 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix image upload functionality in both batch and single product uploaders, and add capability for administrators to edit/replace product images after upload.
+**Goal:** Fix product visibility issue where uploaded products don't appear in the marketplace store.
 
 **Planned changes:**
-- Debug and fix image upload in BatchUploader component to enable successful uploads to backend blob storage
-- Debug and fix image upload in SingleProductUploader component to enable successful uploads to backend blob storage
-- Verify backend blob storage correctly handles image data, stores blobs with metadata, and returns accessible URLs/blob IDs
-- Add image editing functionality allowing administrators to replace product images in both upload and management interfaces
-- Add UI controls (edit button/icon) on product cards for administrators to initiate image editing
-- Create backend function `updateProductImage` that accepts product ID and new image blob, replaces existing image reference
-- Create React Query hook `useUpdateProductImage` for updating product images with proper cache invalidation
+- Debug and fix backend getAllProducts function to return all uploaded products
+- Verify useProducts hook fetches complete product list without client-side filtering
+- Ensure ProductGrid component renders all products without hidden conditions
+- Fix cache invalidation in SingleProductUploader and BatchUploader after successful uploads
+- Add comprehensive logging throughout product creation and retrieval flow
 
-**User-visible outcome:** Users can successfully upload product images when creating products (batch or single mode), and administrators can edit/replace existing product images with upload progress feedback and success confirmation.
+**User-visible outcome:** All uploaded products (both single and batch) will immediately appear in the marketplace store after upload.

@@ -144,6 +144,7 @@ export interface _SERVICE {
   'startBatchUpload' : ActorMethod<[string], undefined>,
   'transform' : ActorMethod<[TransformationInput], TransformationOutput>,
   'updateCategory' : ActorMethod<[Category], undefined>,
+  'updateProductImage' : ActorMethod<[string, ExternalBlob], Product>,
   'updateStoreSettings' : ActorMethod<[StoreSettings], undefined>,
   'uploadProductImage' : ActorMethod<
     [string, ExternalBlob, bigint, string],

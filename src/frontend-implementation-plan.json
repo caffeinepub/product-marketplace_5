@@ -1,6 +1,102 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add 'shape type' as a subcategory",
-  "requirements": []
+  "title": "Fix Image Upload and Add Image Editing Capability",
+  "requirements": [
+    {
+      "id": "REQ-74",
+      "summary": "Fix BatchUploader image upload to backend blob storage with progress tracking and error handling",
+      "acceptanceCriteria": [
+        "Users can select multiple image files in the BatchUploader component",
+        "Selected images are successfully uploaded to the backend blob storage",
+        "Upload progress is displayed to the user during the upload process",
+        "Products are created with correct image references after successful upload",
+        "Error messages are displayed if upload fails with actionable feedback"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/BatchUploader.tsx",
+          "operation": "modify",
+          "description": "Fix image upload implementation to properly use the blob-storage component's ExternalBlob class. Convert selected File objects to ExternalBlob using ExternalBlob.fromBytes() after reading file data as Uint8Array. Implement withUploadProgress() to track upload percentage for each image. Ensure the image ExternalBlob is passed correctly to the uploadProductImage backend function. Add error handling with actionable error messages for upload failures (file size, format validation, network errors). Verify the component's usage instructions for blob-storage before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-75",
+      "summary": "Fix SingleProductUploader image upload to backend blob storage with progress tracking and error handling",
+      "acceptanceCriteria": [
+        "Users can select a single image file in the SingleProductUploader component",
+        "Selected image is successfully uploaded to the backend blob storage",
+        "Upload progress is displayed to the user during the upload process",
+        "Product is created with correct image reference after successful upload",
+        "Error messages are displayed if upload fails with actionable feedback"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/SingleProductUploader.tsx",
+          "operation": "modify",
+          "description": "Fix image upload implementation to properly use the blob-storage component's ExternalBlob class. Convert the selected File object to ExternalBlob using ExternalBlob.fromBytes() after reading file data as Uint8Array. Implement withUploadProgress() to track and display upload percentage. Ensure the image ExternalBlob is passed correctly to the addProduct backend function. Add comprehensive error handling with actionable error messages for upload failures (file size limits, unsupported formats, network issues). Verify the component's usage instructions for blob-storage before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-77",
+      "summary": "Add image editing capability to replace product images in SingleProductUploader and product management interfaces",
+      "acceptanceCriteria": [
+        "Administrators can select a new image file to replace an existing product image",
+        "The new image is uploaded to backend blob storage",
+        "The product record is updated with the new image reference",
+        "Old image blob is properly handled (replaced or removed)",
+        "Image update operation provides user feedback on success or failure"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a new custom hook useUpdateProductImage that wraps the backend updateProductImage function. Use useMutation from React Query with proper error handling. The mutation function should accept productId and newImage (as ExternalBlob), convert the File to ExternalBlob using ExternalBlob.fromBytes() and withUploadProgress() for progress tracking, then call actor.updateProductImage(productId, newImage). On success, invalidate the 'products' query key to refresh the product grid. Return loading, error, and success states. Follow the existing pattern in useQueries.ts for consistency. Verify the component's usage instructions for blob-storage before implementing."
+        },
+        {
+          "path": "frontend/src/components/SingleProductUploader.tsx",
+          "operation": "modify",
+          "description": "Add edit mode support to the SingleProductUploader component. Accept optional productId and existingProduct props to enable editing existing products. When in edit mode, pre-populate form fields with existing product data and display the current product image. Add 'Replace Image' file input that allows selecting a new image. Use the useUpdateProductImage hook to handle image replacement. Display upload progress during image update. Show success toast notification after successful update. Add error handling with clear messages if update fails. Ensure the component can be toggled between create and edit modes seamlessly."
+        }
+      ]
+    },
+    {
+      "id": "REQ-78",
+      "summary": "Add UI controls in ProductCard for administrators to initiate image editing",
+      "acceptanceCriteria": [
+        "Edit button or icon is displayed on product cards for administrators",
+        "Clicking edit opens an interface for selecting a new product image",
+        "File input allows selecting image files from the user's device",
+        "Upload progress is displayed during the image replacement operation",
+        "Success confirmation is shown after successful image update"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ProductCard.tsx",
+          "operation": "modify",
+          "description": "Add admin-only edit button/icon to the product card using the authorization component's useActor hook to check if the current user is an admin (via isCallerAdmin or by checking identity/role). The edit button should open a dialog or modal containing a file input for selecting a new product image. Integrate the useUpdateProductImage hook from useQueries.ts to handle the image replacement. Display upload progress using a progress bar or percentage indicator during the upload. Show success toast notification after successful image update. Include error handling with user-friendly error messages. Ensure the edit controls are only visible to authenticated administrators."
+        }
+      ]
+    },
+    {
+      "id": "REQ-80",
+      "summary": "Create useUpdateProductImage hook with proper cache invalidation for immediate UI updates",
+      "acceptanceCriteria": [
+        "Hook wraps the backend updateProductImage function",
+        "Hook invalidates products query cache after successful update",
+        "Hook provides loading, error, and success states",
+        "Hook integrates seamlessly with existing React Query patterns in useQueries.ts",
+        "UI components can use the hook to trigger image updates"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Create a new exported function useUpdateProductImage that returns a React Query useMutation hook. The mutation function should accept an object with productId (string) and newImage (File). Convert the File to ExternalBlob using ExternalBlob.fromBytes() after reading as Uint8Array, and chain withUploadProgress() for progress tracking. Call actor.updateProductImage(productId, imageBlob) and handle the response. In the onSuccess callback, use queryClient.invalidateQueries with queryKey ['products'] to refresh the product grid immediately. Also invalidate ['product', productId] if individual product queries exist. Export proper TypeScript types for the mutation variables and return type. Follow the existing logging and error handling patterns in useQueries.ts. Verify the component's usage instructions for blob-storage before implementing."
+        }
+      ]
+    }
+  ]
 }

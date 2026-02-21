@@ -233,6 +233,7 @@ export interface backendInterface {
     startBatchUpload(categoryId: string): Promise<void>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
     updateCategory(category: Category): Promise<void>;
+    updateProductImage(productId: string, newImage: ExternalBlob): Promise<Product>;
     updateStoreSettings(newSettings: StoreSettings): Promise<void>;
     uploadProductImage(name: string, image: ExternalBlob, price: bigint, categoryId: string): Promise<void>;
 }
@@ -797,6 +798,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.updateCategory(to_candid_Category_n13(this._uploadFile, this._downloadFile, arg0));
             return result;
+        }
+    }
+    async updateProductImage(arg0: string, arg1: ExternalBlob): Promise<Product> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateProductImage(arg0, await to_candid_ExternalBlob_n10(this._uploadFile, this._downloadFile, arg1));
+                return from_candid_Product_n15(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateProductImage(arg0, await to_candid_ExternalBlob_n10(this._uploadFile, this._downloadFile, arg1));
+            return from_candid_Product_n15(this._uploadFile, this._downloadFile, result);
         }
     }
     async updateStoreSettings(arg0: StoreSettings): Promise<void> {

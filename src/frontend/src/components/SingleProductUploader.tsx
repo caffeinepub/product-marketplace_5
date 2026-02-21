@@ -50,6 +50,12 @@ export default function SingleProductUploader() {
       return;
     }
 
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
     setSelectedImage(file);
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -98,8 +104,11 @@ export default function SingleProductUploader() {
     try {
       setUploadProgress(0);
 
+      // Convert File to Uint8Array
       const arrayBuffer = await selectedImage.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
+      
+      // Create ExternalBlob with progress tracking
       const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress((percentage) => {
         setUploadProgress(percentage);
       });
@@ -107,7 +116,7 @@ export default function SingleProductUploader() {
       const priceInCents = BigInt(Math.round(parseFloat(productPrice) * 100));
 
       await addProductMutation.mutateAsync({
-        name: productName.trim(),
+        name: productName,
         price: priceInCents,
         image: blob,
         categoryId: selectedCategory,
@@ -121,140 +130,121 @@ export default function SingleProductUploader() {
       setSelectedCategory('');
       clearImage();
       setUploadProgress(0);
-      setPriceError(null);
     } catch (error: any) {
+      console.error('Error adding product:', error);
       toast.error(error.message || 'Failed to add product');
-      setUploadProgress(0);
     }
   };
-
-  const isUploading = addProductMutation.isPending;
-  const hasValidationError = !!priceError;
 
   return (
     <Card className="border-sage/20">
       <CardHeader>
         <CardTitle className="font-serif text-terracotta">Add Single Product</CardTitle>
-        <CardDescription>Add a new product with image, name, price, and category</CardDescription>
+        <CardDescription>Upload a product with image, name, price, and category</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="product-name">Product Name</Label>
-              <Input
-                id="product-name"
-                placeholder="e.g., Handcrafted Ceramic Bowl"
-                value={productName}
-                onChange={(e) => setProductName(e.target.value)}
-                disabled={isUploading}
-                className="border-sage/30 focus-visible:ring-sage"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="product-price">Price ($)</Label>
-              <Input
-                id="product-price"
-                type="number"
-                placeholder="0.00"
-                value={productPrice}
-                onChange={(e) => setProductPrice(e.target.value)}
-                disabled={isUploading}
-                className={`border-sage/30 focus-visible:ring-sage ${priceError ? 'border-destructive' : ''}`}
-                step="0.01"
-                min="0"
-              />
-              {priceError && (
-                <div className="flex items-start gap-2 text-sm text-destructive">
-                  <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-                  <p>{priceError}</p>
-                </div>
-              )}
-            </div>
-
-            <CategorySelector
-              value={selectedCategory}
-              onValueChange={setSelectedCategory}
-              label="Category"
-              placeholder="Select a category"
+          <div className="space-y-2">
+            <Label htmlFor="product-name">Product Name</Label>
+            <Input
+              id="product-name"
+              placeholder="Enter product name"
+              value={productName}
+              onChange={(e) => setProductName(e.target.value)}
+              disabled={addProductMutation.isPending}
+              className="border-sage/30 focus-visible:ring-sage"
             />
+          </div>
 
-            <div className="space-y-2">
-              <Label>Product Image</Label>
-              {imagePreview ? (
-                <div className="relative">
-                  <div className="overflow-hidden rounded-lg border border-sage/20">
-                    <img
-                      src={imagePreview}
-                      alt="Product preview"
-                      className="h-64 w-full object-cover"
-                    />
-                  </div>
-                  {!isUploading && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute right-2 top-2"
-                      onClick={clearImage}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-4">
-                  <div
-                    className="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-sage/30 bg-cream/20 transition-colors hover:border-sage/50 hover:bg-cream/30"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <ImageIcon className="mb-2 h-12 w-12 text-sage/50" />
-                    <p className="text-sm text-muted-foreground">Click to upload image</p>
-                    <p className="text-xs text-muted-foreground">or drag and drop</p>
-                  </div>
-                  <Input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageSelect}
-                    disabled={isUploading}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="border-sage/30"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Browse Files
-                  </Button>
-                </div>
-              )}
-            </div>
-
-            {isUploading && uploadProgress > 0 && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Uploading...</span>
-                  <span className="font-medium text-sage">{Math.round(uploadProgress)}%</span>
-                </div>
-                <Progress value={uploadProgress} className="h-2" />
+          <div className="space-y-2">
+            <Label htmlFor="product-price">Price ($)</Label>
+            <Input
+              id="product-price"
+              type="number"
+              placeholder="0.00"
+              value={productPrice}
+              onChange={(e) => setProductPrice(e.target.value)}
+              disabled={addProductMutation.isPending}
+              className={`border-sage/30 focus-visible:ring-sage ${priceError ? 'border-destructive' : ''}`}
+              step="0.01"
+              min="0"
+            />
+            {priceError && (
+              <div className="flex items-center gap-1 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4" />
+                <span>{priceError}</span>
               </div>
             )}
           </div>
 
+          <div className="space-y-2">
+            <CategorySelector
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="product-image">Product Image</Label>
+            <Input
+              ref={fileInputRef}
+              id="product-image"
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              disabled={addProductMutation.isPending}
+              className="border-sage/30 focus-visible:ring-sage"
+            />
+            <p className="text-xs text-muted-foreground">
+              Maximum file size: 5MB. Supported formats: JPG, PNG, GIF, WebP
+            </p>
+          </div>
+
+          {imagePreview && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Image Preview</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearImage}
+                  disabled={addProductMutation.isPending}
+                  className="h-8 px-2 text-xs"
+                >
+                  <X className="mr-1 h-3 w-3" />
+                  Clear
+                </Button>
+              </div>
+              <div className="flex h-48 w-full items-center justify-center overflow-hidden rounded-lg border border-sage/20 bg-cream/30">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+            </div>
+          )}
+
+          {addProductMutation.isPending && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Uploading product...</span>
+                <span className="font-medium text-sage">{Math.round(uploadProgress)}%</span>
+              </div>
+              <Progress value={uploadProgress} className="h-2" />
+            </div>
+          )}
+
           <Button
             type="submit"
-            disabled={isUploading || !productName.trim() || !productPrice || !selectedCategory || !selectedImage || hasValidationError}
+            disabled={addProductMutation.isPending || !productName || !productPrice || !selectedCategory || !selectedImage || !!priceError}
             className="w-full bg-terracotta hover:bg-terracotta/90"
           >
-            {isUploading ? (
+            {addProductMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Adding Product...
+                Uploading...
               </>
             ) : (
               <>

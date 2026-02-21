@@ -63,6 +63,13 @@ export default function BatchUploader() {
       return;
     }
 
+    // Check file sizes
+    const oversizedFiles = imageFiles.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      toast.error(`${oversizedFiles.length} file(s) exceed 5MB size limit`);
+      return;
+    }
+
     const newProducts: UploadedProduct[] = imageFiles.map((file) => ({
       name: file.name.replace(/\.[^/.]+$/, ''),
       price: 0,
@@ -129,9 +136,14 @@ export default function BatchUploader() {
         updateProduct(i, { status: 'uploading' });
 
         try {
+          // Convert File to Uint8Array
           const arrayBuffer = await product.image.arrayBuffer();
           const uint8Array = new Uint8Array(arrayBuffer);
-          const blob = ExternalBlob.fromBytes(uint8Array);
+          
+          // Create ExternalBlob with progress tracking
+          const blob = ExternalBlob.fromBytes(uint8Array).withUploadProgress((percentage) => {
+            console.log(`Product ${i + 1}/${products.length} upload progress: ${percentage}%`);
+          });
 
           await uploadProductMutation.mutateAsync({
             name: product.name,
@@ -143,17 +155,29 @@ export default function BatchUploader() {
           updateProduct(i, { status: 'success' });
           setUploadProgress(((i + 1) / products.length) * 100);
         } catch (error: any) {
-          updateProduct(i, { status: 'error', error: error.message });
+          console.error(`Error uploading product ${product.name}:`, error);
+          updateProduct(i, { status: 'error', error: error.message || 'Upload failed' });
         }
       }
 
       await finishBatchMutation.mutateAsync();
-      toast.success(`Successfully uploaded ${products.filter((p) => p.status === 'success').length} products`);
+      
+      const successCount = products.filter((p) => p.status === 'success').length;
+      const errorCount = products.filter((p) => p.status === 'error').length;
+      
+      if (errorCount > 0) {
+        toast.warning(`Uploaded ${successCount} products. ${errorCount} failed.`);
+      } else {
+        toast.success(`Successfully uploaded ${successCount} products`);
+      }
 
       // Clear successful uploads
       setProducts((prev) => prev.filter((p) => p.status === 'error'));
-      setSelectedCategory('');
+      if (products.every((p) => p.status === 'success')) {
+        setSelectedCategory('');
+      }
     } catch (error: any) {
+      console.error('Batch upload error:', error);
       toast.error(error.message || 'Failed to upload products');
     } finally {
       setIsUploading(false);
@@ -260,6 +284,9 @@ export default function BatchUploader() {
                 Browse
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground">
+              Maximum file size per image: 5MB. Supported formats: JPG, PNG, GIF, WebP
+            </p>
           </div>
         </div>
 

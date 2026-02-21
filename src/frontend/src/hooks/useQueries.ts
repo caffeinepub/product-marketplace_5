@@ -370,6 +370,80 @@ export function useFinishBatchUpload() {
   });
 }
 
+export function useUpdateProductImage() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      productId,
+      newImage,
+      onProgress,
+    }: {
+      productId: string;
+      newImage: File;
+      onProgress?: (percentage: number) => void;
+    }) => {
+      console.log('[useUpdateProductImage] Starting image update for product:', productId);
+      
+      if (!actor) {
+        console.error('[useUpdateProductImage] Actor not initialized');
+        throw new Error('Actor not initialized');
+      }
+
+      try {
+        // Convert File to Uint8Array
+        const arrayBuffer = await newImage.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        
+        console.log('[useUpdateProductImage] Image converted to Uint8Array, size:', uint8Array.length);
+
+        // Create ExternalBlob with progress tracking
+        let imageBlob = ExternalBlob.fromBytes(uint8Array);
+        
+        if (onProgress) {
+          imageBlob = imageBlob.withUploadProgress((percentage) => {
+            console.log(`[useUpdateProductImage] Upload progress: ${percentage}%`);
+            onProgress(percentage);
+          });
+        }
+
+        console.log('[useUpdateProductImage] Calling backend updateProductImage...');
+        const updatedProduct = await actor.updateProductImage(productId, imageBlob);
+        
+        console.log('[useUpdateProductImage] Image updated successfully:', updatedProduct);
+        return updatedProduct;
+      } catch (error: any) {
+        console.error('[useUpdateProductImage] Error updating product image:', {
+          productId,
+          error,
+          errorMessage: error?.message,
+          errorStack: error?.stack,
+        });
+        throw error;
+      }
+    },
+    onSuccess: (data, variables) => {
+      console.log('[useUpdateProductImage] Mutation successful, invalidating queries', {
+        productId: variables.productId,
+        updatedProduct: data,
+      });
+      // Invalidate both products list and individual product queries
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', variables.productId] });
+    },
+    onError: (error: any, variables) => {
+      console.error('[useUpdateProductImage] Mutation error:', {
+        productId: variables.productId,
+        error,
+        message: error?.message,
+        stack: error?.stack,
+      });
+    },
+    retry: false,
+  });
+}
+
 export function useStripeConfigured() {
   const { actor, isFetching } = useActor();
 

@@ -525,8 +525,8 @@ actor {
     if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can remove admins");
     };
-    if (not admins.containsKey(admin)) { 
-      Runtime.trap("Admin does not exist, cannot be removed") 
+    if (not admins.containsKey(admin)) {
+      Runtime.trap("Admin does not exist, cannot be removed");
     };
     // Demote to user role instead of removing entirely
     AccessControl.assignRole(accessControlState, caller, admin, #user);
@@ -559,5 +559,25 @@ actor {
 
   public func getPriceConstraint(category : Text) : async ?PriceConstraint {
     priceConstraints.get(category);
+  };
+
+  public shared ({ caller }) func updateProductImage(productId : Text, newImage : Store.ExternalBlob) : async Product {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update product images");
+    };
+
+    switch (products.get(productId)) {
+      case (null) {
+        Runtime.trap("Product does not exist. Cannot update image.");
+      };
+      case (?product) {
+        let updatedProduct = {
+          product with
+          image = newImage;
+        };
+        products.add(productId, updatedProduct);
+        updatedProduct;
+      };
+    };
   };
 };

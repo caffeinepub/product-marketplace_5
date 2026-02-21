@@ -176,6 +176,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'updateCategory' : IDL.Func([Category], [], []),
+  'updateProductImage' : IDL.Func([IDL.Text, ExternalBlob], [Product], []),
   'updateStoreSettings' : IDL.Func([StoreSettings], [], []),
   'uploadProductImage' : IDL.Func(
       [IDL.Text, ExternalBlob, IDL.Nat, IDL.Text],
@@ -356,6 +357,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'updateCategory' : IDL.Func([Category], [], []),
+    'updateProductImage' : IDL.Func([IDL.Text, ExternalBlob], [Product], []),
     'updateStoreSettings' : IDL.Func([StoreSettings], [], []),
     'uploadProductImage' : IDL.Func(
         [IDL.Text, ExternalBlob, IDL.Nat, IDL.Text],

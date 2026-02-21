@@ -140,6 +140,7 @@ export interface backendInterface {
     startBatchUpload(categoryId: string): Promise<void>;
     transform(input: TransformationInput): Promise<TransformationOutput>;
     updateCategory(category: Category): Promise<void>;
+    updateProductImage(productId: string, newImage: ExternalBlob): Promise<Product>;
     updateStoreSettings(newSettings: StoreSettings): Promise<void>;
     uploadProductImage(name: string, image: ExternalBlob, price: bigint, categoryId: string): Promise<void>;
 }

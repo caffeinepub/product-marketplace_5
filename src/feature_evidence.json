@@ -1,4 +1,116 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-debug-and-fix-the-image-upload-mechanism-in-batchuploader-component-to-ensure-images-can-be-successfully-uploaded-to-the-backend-blob-storage-when-creating-products-in-batch-mode",
+      "featureTitle": "Debug and fix the image upload mechanism in BatchUploader component to ensure images can be successfully uploaded to the backend blob storage when creating products in batch mode",
+      "files": [
+        "frontend/src/components/BatchUploader.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-74"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-debug-and-fix-the-image-upload-mechanism-in-singleproductuploader-component-to-ensure-images-can-be-successfully-uploaded-to-the-backend-blob-storage-when-creating-individual-products",
+      "featureTitle": "Debug and fix the image upload mechanism in SingleProductUploader component to ensure images can be successfully uploaded to the backend blob storage when creating individual products",
+      "files": [
+        "frontend/src/components/SingleProductUploader.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-75"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-image-editing-functionality-allowing-administrators-to-replace-or-update-product-images-after-initial-upload-in-both-singleproductuploader-and-product-management-interfaces",
+      "featureTitle": "Add image editing functionality allowing administrators to replace or update product images after initial upload in both SingleProductUploader and product management interfaces",
+      "files": [
+        "frontend/src/components/SingleProductUploader.tsx",
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-77"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-ui-controls-in-productcard-or-a-product-management-view-that-allow-administrators-to-initiate-image-editing-for-existing-products",
+      "featureTitle": "Add UI controls in ProductCard or a product management view that allow administrators to initiate image editing for existing products",
+      "files": [
+        "frontend/src/components/ProductCard.tsx"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-78"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-react-query-hook-useupdateproductimage-for-updating-product-images-with-proper-cache-invalidation-to-ensure-productgrid-displays-updated-images-immediately",
+      "featureTitle": "Create React Query hook useUpdateProductImage for updating product images with proper cache invalidation to ensure ProductGrid displays updated images immediately",
+      "files": [
+        "frontend/src/hooks/useQueries.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "stripe@3.0.0",
+        "http-outcalls@3.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-80"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

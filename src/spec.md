@@ -1,10 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Add 'shape type' as a subcategory under the '3d print' parent category.
+**Goal:** Fix image upload functionality in both batch and single product uploaders, and add capability for administrators to edit/replace product images after upload.
 
 **Planned changes:**
-- Create a new subcategory named 'shape type' under the '3d print' parent category in the backend category hierarchy
-- Update the migration module to automatically create the 'shape type' subcategory during canister initialization/upgrade if it doesn't already exist
+- Debug and fix image upload in BatchUploader component to enable successful uploads to backend blob storage
+- Debug and fix image upload in SingleProductUploader component to enable successful uploads to backend blob storage
+- Verify backend blob storage correctly handles image data, stores blobs with metadata, and returns accessible URLs/blob IDs
+- Add image editing functionality allowing administrators to replace product images in both upload and management interfaces
+- Add UI controls (edit button/icon) on product cards for administrators to initiate image editing
+- Create backend function `updateProductImage` that accepts product ID and new image blob, replaces existing image reference
+- Create React Query hook `useUpdateProductImage` for updating product images with proper cache invalidation
 
-**User-visible outcome:** Users can select 'shape type' as a subcategory under '3d print' when uploading or filtering products.
+**User-visible outcome:** Users can successfully upload product images when creating products (batch or single mode), and administrators can edit/replace existing product images with upload progress feedback and success confirmation.
